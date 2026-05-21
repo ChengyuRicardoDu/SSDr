@@ -49,6 +49,16 @@ ssdr_normalize_coords <- function(coords) {
   out
 }
 
+ssdr_normalize_coords_global <- function(coords) {
+  coords <- ssdr_as_numeric_matrix(coords, "coords")
+  mn <- min(coords)
+  mx <- max(coords)
+  if (abs(mx - mn) < .Machine$double.eps) {
+    return(matrix(0, nrow = nrow(coords), ncol = ncol(coords)))
+  }
+  (coords - mn) / (mx - mn)
+}
+
 ssdr_check_rank <- function(rank, X) {
   if (!is.numeric(rank) || length(rank) != 1 || !is.finite(rank)) {
     stop("`rank` must be a positive integer.", call. = FALSE)

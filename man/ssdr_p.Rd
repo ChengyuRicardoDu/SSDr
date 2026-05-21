@@ -28,7 +28,7 @@ with the rows of \code{X}.}
 \item{rank}{Positive integer. Target embedding dimension.}
 
 \item{bandwidth}{Positive numeric. Gaussian kernel bandwidth after
-column-wise min-max normalization of \code{coords}.}
+global min-max normalization of \code{coords}.}
 
 \item{lambda}{Non-negative numeric smoothness weight.}
 

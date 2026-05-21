@@ -11,7 +11,7 @@
 #'   with the rows of `X`.
 #' @param rank Positive integer. Target embedding dimension.
 #' @param bandwidth Positive numeric. Gaussian kernel bandwidth after
-#'   column-wise min-max normalization of `coords`.
+#'   global min-max normalization of `coords`.
 #' @param lambda Non-negative numeric smoothness weight.
 #' @param step_size_init Positive numeric initial line-search step size.
 #' @param max_iter Positive integer. Maximum number of optimization cycles.
@@ -75,7 +75,7 @@ ssdr_p <- function(X,
 
   X <- ssdr_as_numeric_matrix(X, "X", nonnegative = TRUE)
   if (is.null(coords)) stop("`coords` is required.", call. = FALSE)
-  coords <- ssdr_normalize_coords(coords)
+  coords <- ssdr_normalize_coords_global(coords)
   if (nrow(X) != nrow(coords)) {
     stop("`nrow(X)` must equal `nrow(coords)`.", call. = FALSE)
   }
