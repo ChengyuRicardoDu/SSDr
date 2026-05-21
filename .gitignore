@@ -1,0 +1,50 @@
+.Rhistory
+.RData
+.RDataTmp
+.Ruserdata
+.Rproj.user/
+.claude/
+
+# R package/build artifacts
+*.o
+*.so
+*.dll
+*.dylib
+*.tar.gz
+*.Rcheck/
+Rplots.pdf
+
+# R Markdown / knitr caches
+*_cache/
+*_files/
+*.utf8.md
+*.knit.md
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+
+# Large scientific data and caches
+*.h5
+*.h5ad
+*.loom
+*.rds
+*.RDS
+!examples/data/*.rds
+
+# Local/generated logs
+*.log
+run_stdout.log
+run_stderr.log
+monitor.log
+
+# OS/editor clutter
+.DS_Store
+Thumbs.db
+desktop.ini

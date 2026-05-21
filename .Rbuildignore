@@ -1,0 +1,9 @@
+^ssdr[.]Rproj$
+^[.]Rproj[.]user$
+^src/.*[.](o|so|dll)$
+^.*\.Rproj$
+^\.Rproj\.user$
+^[.]gitignore$
+^CITATION[.]cff$
+^LICENSE[.]md$
+^README[.]md$

@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use SSDr, please cite the associated manuscript and software repository."
+title: "ssdr: Spatially Smoothed Dimension Reduction"
+version: "0.1.0"
+license: MIT
+authors:
+  - family-names: Du
+    given-names: Chengyu
+    email: cd29@illinois.edu
+  - family-names: Li
+    given-names: Zirui
+    email: lzrmath@smail.nju.edu.cn
+  - family-names: Guo
+    given-names: Boyi
+    email: bguo6@jhu.edu
+  - family-names: Zhu
+    given-names: Ruoqing
+    email: teazrq@gmail.com
+repository-code: "https://github.com/ChengyuRicardoDu/SSDr"
+type: software

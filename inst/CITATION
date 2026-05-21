@@ -1,0 +1,13 @@
+bibentry(
+  bibtype = "Manual",
+  title = "ssdr: Spatially Smoothed Dimension Reduction",
+  author = c(
+    person(given = "Chengyu", family = "Du"),
+    person(given = "Zirui", family = "Li"),
+    person(given = "Boyi", family = "Guo"),
+    person(given = "Ruoqing", family = "Zhu")
+  ),
+  year = "2026",
+  note = "R package version 0.1.0",
+  url = "https://github.com/ChengyuRicardoDu/SSDr"
+)
