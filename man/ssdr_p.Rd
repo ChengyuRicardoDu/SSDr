@@ -6,16 +6,14 @@
 \usage{
 ssdr_p(
   X,
-  coords = NULL,
+  coords,
   rank = 5,
   bandwidth = 0.2,
   lambda = 1e+05,
   step_size_init = 1e-05,
   max_iter = 20,
   line_search_steps = 50,
-  tol = 0.001,
-  verbose = FALSE,
-  ...
+  tol = 0.001
 )
 }
 \arguments{
@@ -39,11 +37,6 @@ global min-max normalization of \code{coords}.}
 \item{line_search_steps}{Positive integer. Number of line-search candidates.}
 
 \item{tol}{Non-negative numeric convergence tolerance.}
-
-\item{verbose}{Logical. If \code{TRUE}, print optimizer progress.}
-
-\item{...}{Deprecated argument aliases: \code{data_pixel}, \code{r}, \code{sigma},
-\code{initial_alpha}, and \code{ls_candidates}.}
 }
 \value{
 An \code{ssdr_fit} object. The embedding is stored in \code{fit$U}.

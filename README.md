@@ -19,8 +19,9 @@ remotes::install_github("ChengyuRicardoDu/SSDr")
 | `ssdr_p()` | SSDr-P | count matrix | kernel Poisson loss with RKHS smoothness |
 | `ssdr_nn()` | SSDr-NN | count matrix | neural Poisson loss with graph smoothness |
 
-`ssdr_p()` is retained as an exported supplementary/experimental method. The
-main manuscript workflow emphasizes `ssdr_f()` and `ssdr_nn()`.
+The main manuscript workflow uses `ssdr_f()` and `ssdr_nn()`; `ssdr_p()` is
+provided for the kernel Poisson formulation described in the Supplementary
+Methods.
 
 ## Common Arguments
 

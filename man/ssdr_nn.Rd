@@ -6,7 +6,7 @@
 \usage{
 ssdr_nn(
   X,
-  coords = NULL,
+  coords,
   rank = 5,
   bandwidth = 0.2,
   lambda = 0.01,
@@ -16,9 +16,7 @@ ssdr_nn(
   max_iter = 500,
   patience = 50,
   tol = 1e-05,
-  seed = 1,
-  verbose = FALSE,
-  ...
+  seed = 1
 )
 }
 \arguments{
@@ -51,11 +49,6 @@ coordinate MLP.}
 early stopping.}
 
 \item{seed}{Integer random seed passed to torch.}
-
-\item{verbose}{Logical. If \code{TRUE}, print progress messages during training.}
-
-\item{...}{Deprecated argument aliases: \code{data_pixel}, \code{r},
-\code{sigma_neighbor}, \code{lambda_smooth}, \code{lr}, and \code{max_epoch}.}
 }
 \value{
 An \code{ssdr_fit} object. The embedding is stored in \code{fit$U}.

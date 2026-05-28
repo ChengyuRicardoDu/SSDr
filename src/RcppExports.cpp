@@ -24,8 +24,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // ssdr_f_optimize_cpp
-Rcpp::List ssdr_f_optimize_cpp(const arma::mat& X, const arma::vec& Sigma_svd, const arma::mat& V_svd, const arma::mat& K, double lambda, int max_iter, double tol, bool verbose);
-RcppExport SEXP _ssdr_ssdr_f_optimize_cpp(SEXP XSEXP, SEXP Sigma_svdSEXP, SEXP V_svdSEXP, SEXP KSEXP, SEXP lambdaSEXP, SEXP max_iterSEXP, SEXP tolSEXP, SEXP verboseSEXP) {
+Rcpp::List ssdr_f_optimize_cpp(const arma::mat& X, const arma::vec& Sigma_svd, const arma::mat& V_svd, const arma::mat& K, double lambda, int max_iter, double tol);
+RcppExport SEXP _ssdr_ssdr_f_optimize_cpp(SEXP XSEXP, SEXP Sigma_svdSEXP, SEXP V_svdSEXP, SEXP KSEXP, SEXP lambdaSEXP, SEXP max_iterSEXP, SEXP tolSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -36,14 +36,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
     Rcpp::traits::input_parameter< int >::type max_iter(max_iterSEXP);
     Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
-    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
-    rcpp_result_gen = Rcpp::wrap(ssdr_f_optimize_cpp(X, Sigma_svd, V_svd, K, lambda, max_iter, tol, verbose));
+    rcpp_result_gen = Rcpp::wrap(ssdr_f_optimize_cpp(X, Sigma_svd, V_svd, K, lambda, max_iter, tol));
     return rcpp_result_gen;
 END_RCPP
 }
 // ssdr_p_optimize_cpp
-Rcpp::List ssdr_p_optimize_cpp(const arma::mat& X, arma::mat B, const arma::vec& Sigma_svd, const arma::mat& V_svd, const arma::mat& K, const arma::mat& A_init, double lambda, double step_size_init, int max_iter, double tol, int line_search_steps, bool verbose);
-RcppExport SEXP _ssdr_ssdr_p_optimize_cpp(SEXP XSEXP, SEXP BSEXP, SEXP Sigma_svdSEXP, SEXP V_svdSEXP, SEXP KSEXP, SEXP A_initSEXP, SEXP lambdaSEXP, SEXP step_size_initSEXP, SEXP max_iterSEXP, SEXP tolSEXP, SEXP line_search_stepsSEXP, SEXP verboseSEXP) {
+Rcpp::List ssdr_p_optimize_cpp(const arma::mat& X, arma::mat B, const arma::vec& Sigma_svd, const arma::mat& V_svd, const arma::mat& K, const arma::mat& A_init, double lambda, double step_size_init, int max_iter, double tol, int line_search_steps);
+RcppExport SEXP _ssdr_ssdr_p_optimize_cpp(SEXP XSEXP, SEXP BSEXP, SEXP Sigma_svdSEXP, SEXP V_svdSEXP, SEXP KSEXP, SEXP A_initSEXP, SEXP lambdaSEXP, SEXP step_size_initSEXP, SEXP max_iterSEXP, SEXP tolSEXP, SEXP line_search_stepsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -58,8 +57,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type max_iter(max_iterSEXP);
     Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
     Rcpp::traits::input_parameter< int >::type line_search_steps(line_search_stepsSEXP);
-    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
-    rcpp_result_gen = Rcpp::wrap(ssdr_p_optimize_cpp(X, B, Sigma_svd, V_svd, K, A_init, lambda, step_size_init, max_iter, tol, line_search_steps, verbose));
+    rcpp_result_gen = Rcpp::wrap(ssdr_p_optimize_cpp(X, B, Sigma_svd, V_svd, K, A_init, lambda, step_size_init, max_iter, tol, line_search_steps));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -78,8 +76,8 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_ssdr_ssdr_gaussian_kernel_cpp", (DL_FUNC) &_ssdr_ssdr_gaussian_kernel_cpp, 2},
-    {"_ssdr_ssdr_f_optimize_cpp", (DL_FUNC) &_ssdr_ssdr_f_optimize_cpp, 8},
-    {"_ssdr_ssdr_p_optimize_cpp", (DL_FUNC) &_ssdr_ssdr_p_optimize_cpp, 12},
+    {"_ssdr_ssdr_f_optimize_cpp", (DL_FUNC) &_ssdr_ssdr_f_optimize_cpp, 7},
+    {"_ssdr_ssdr_p_optimize_cpp", (DL_FUNC) &_ssdr_ssdr_p_optimize_cpp, 11},
     {"_ssdr_ssdr_truncated_svd_cpp", (DL_FUNC) &_ssdr_ssdr_truncated_svd_cpp, 2},
     {NULL, NULL, 0}
 };

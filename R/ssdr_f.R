@@ -17,9 +17,6 @@
 #'   before fitting.
 #' @param max_iter Positive integer. Maximum number of outer iterations.
 #' @param tol Non-negative numeric. Relative convergence tolerance.
-#' @param verbose Logical. If `TRUE`, print optimizer progress.
-#' @param ... Deprecated argument aliases: `data_pixel`, `r`, `sigma`, and
-#'   `double_center`.
 #'
 #' @return An `ssdr_fit` object. The embedding is stored in `fit$U`.
 #' @export
@@ -31,40 +28,23 @@
 #' fit <- ssdr_f(X, coords, rank = 2, bandwidth = 0.2, max_iter = 2)
 #' dim(fit$U)
 ssdr_f <- function(X,
-                   coords = NULL,
-                   rank = NULL,
-                   bandwidth = NULL,
+                   coords,
+                   rank,
+                   bandwidth,
                    lambda = NULL,
                    center = FALSE,
                    max_iter = 100,
-                   tol = 1e-2,
-                   verbose = FALSE,
-                   ...) {
+                   tol = 1e-2) {
   call <- match.call()
-  dots <- list(...)
-
-  alias <- ssdr_arg_alias(dots, "coords", "data_pixel", coords, missing(coords))
-  coords <- alias$value
-  dots <- alias$dots
-  alias <- ssdr_arg_alias(dots, "rank", "r", rank, missing(rank))
-  rank <- alias$value
-  dots <- alias$dots
-  alias <- ssdr_arg_alias(dots, "bandwidth", "sigma", bandwidth, missing(bandwidth))
-  bandwidth <- alias$value
-  dots <- alias$dots
-  alias <- ssdr_arg_alias(dots, "center", "double_center", center, missing(center))
-  center <- alias$value
-  dots <- alias$dots
-  ssdr_check_unused_dots(dots)
 
   X <- ssdr_as_numeric_matrix(X, "X")
-  if (is.null(coords)) stop("`coords` is required.", call. = FALSE)
+  if (missing(coords) || is.null(coords)) stop("`coords` is required.", call. = FALSE)
   coords <- ssdr_normalize_coords_global(coords)
   if (nrow(X) != nrow(coords)) {
     stop("`nrow(X)` must equal `nrow(coords)`.", call. = FALSE)
   }
-  if (is.null(rank)) stop("`rank` is required.", call. = FALSE)
-  if (is.null(bandwidth)) stop("`bandwidth` is required.", call. = FALSE)
+  if (missing(rank) || is.null(rank)) stop("`rank` is required.", call. = FALSE)
+  if (missing(bandwidth) || is.null(bandwidth)) stop("`bandwidth` is required.", call. = FALSE)
   rank <- ssdr_check_rank(rank, X)
   bandwidth <- ssdr_check_scalar(bandwidth, "bandwidth", lower = 0, strict = TRUE)
   if (!is.null(lambda)) {
@@ -73,7 +53,6 @@ ssdr_f <- function(X,
   max_iter <- ssdr_check_integer_scalar(max_iter, "max_iter")
   tol <- ssdr_check_scalar(tol, "tol", lower = 0)
   center <- isTRUE(center)
-  verbose <- isTRUE(verbose)
 
   n <- nrow(X)
   p <- ncol(X)
@@ -99,7 +78,6 @@ ssdr_f <- function(X,
   if (is.null(lambda)) {
     ratio <- 0.1 / 0.9
     lambda <- ratio * (min(svd_s)^2) / (p * n) * sum(diag(K_fit))
-    if (verbose) message(sprintf("Default lambda: %.5e", lambda))
   }
 
   result <- ssdr_f_optimize_cpp(
@@ -109,8 +87,7 @@ ssdr_f <- function(X,
     K = K_fit,
     lambda = lambda,
     max_iter = max_iter,
-    tol = tol,
-    verbose = verbose
+    tol = tol
   )
 
   new_ssdr_fit(

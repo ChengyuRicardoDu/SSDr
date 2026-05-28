@@ -1,7 +1,5 @@
 // [[Rcpp::depends(RcppArmadillo)]]
-// [[Rcpp::plugins(cpp11)]]
 #include <RcppArmadillo.h>
-#include <chrono>
 #include <cmath>
 #include <limits>
 
@@ -76,8 +74,7 @@ Rcpp::List ssdr_f_optimize_cpp(const arma::mat& X,
                                const arma::mat& K,
                                double lambda,
                                int max_iter = 100,
-                               double tol = 1e-2,
-                               bool verbose = false) {
+                               double tol = 1e-2) {
   if (X.n_rows == 0 || X.n_cols == 0) {
     stop("`X` must be a non-empty matrix.");
   }
@@ -109,8 +106,6 @@ Rcpp::List ssdr_f_optimize_cpp(const arma::mat& X,
   const double np = (double)n * p;
   const double n_inv = 1.0 / (double)n;
 
-  auto t0 = std::chrono::high_resolution_clock::now();
-
   arma::vec sigma = Sigma_svd;
   arma::mat Sigma = arma::diagmat(sigma);
   arma::mat V = V_svd;
@@ -124,10 +119,6 @@ Rcpp::List ssdr_f_optimize_cpp(const arma::mat& X,
   int iterations = 0;
 
   for (int iter = 0; iter < max_iter; ++iter) {
-    if (verbose) {
-      Rcout << "\n--- Iteration " << iter + 1 << " ---\n";
-    }
-
     A = update_a_block(sigma, X, V, K, lambda);
     U = K * A;
 
@@ -154,19 +145,11 @@ Rcpp::List ssdr_f_optimize_cpp(const arma::mat& X,
     double objective = frobenius_loss(X, U, sigma, V) / np
       + lambda * n_inv * arma::trace(A.t() * K * A);
 
-    if (verbose) {
-      Rcout << "objective = " << objective
-            << " (previous = " << best_objective << ")\n";
-    }
-
     iterations = iter + 1;
     if (objective < best_objective) {
       if (std::isfinite(best_objective)) {
         double rel_change = std::abs(best_objective - objective) / std::abs(best_objective);
         if (rel_change < tol) {
-          if (verbose) {
-            Rcout << "Converged: relative improvement is below tolerance.\n";
-          }
           break;
         }
       }
@@ -176,19 +159,8 @@ Rcpp::List ssdr_f_optimize_cpp(const arma::mat& X,
       best_V = V;
       best_sigma = sigma;
     } else {
-      if (verbose) {
-        Rcout << "Objective increased; reverting to best iterate.\n";
-      }
       break;
     }
-  }
-
-  if (verbose) {
-    double elapsed =
-      std::chrono::duration<double>(
-        std::chrono::high_resolution_clock::now() - t0
-      ).count();
-    Rcout << "Finished in " << elapsed << "s\n";
   }
 
   double reconstruction_loss = frobenius_loss(X, best_U, best_sigma, best_V) / np;

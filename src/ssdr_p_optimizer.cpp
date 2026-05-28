@@ -1,7 +1,5 @@
 // [[Rcpp::depends(RcppArmadillo)]]
-// [[Rcpp::plugins(cpp11)]]
 #include <RcppArmadillo.h>
-#include <chrono>
 #include <cmath>
 #include <functional>
 #include <limits>
@@ -110,8 +108,7 @@ Rcpp::List ssdr_p_optimize_cpp(const arma::mat& X,
                                double step_size_init,
                                int max_iter,
                                double tol = 1e-3,
-                               int line_search_steps = 50,
-                               bool verbose = false) {
+                               int line_search_steps = 50) {
   const uword n = X.n_rows;
   const uword p = X.n_cols;
   const uword rank = A_init.n_cols;
@@ -168,22 +165,10 @@ Rcpp::List ssdr_p_optimize_cpp(const arma::mat& X,
   double f = objective(A, V, Sigma);
   int iterations = 0;
 
-  if (verbose) {
-    Rcout << "[Init] objective = " << f << "\n";
-  }
-
-  auto t0 = std::chrono::high_resolution_clock::now();
-
   for (int cycle = 0; cycle < max_iter; ++cycle) {
-    if (verbose) {
-      Rcout << "\n=== Cycle " << cycle + 1 << " ===\n";
-    }
-
     bool improved = false;
     iterations = cycle + 1;
 
-    int a_accepted = 0;
-    double a_last_alpha = 0.0;
     for (int step = 0; step < 10; ++step) {
       arma::mat E = B % arma::exp(U * Sigma * V.t());
       arma::mat gradA =
@@ -203,8 +188,6 @@ Rcpp::List ssdr_p_optimize_cpp(const arma::mat& X,
       double f2 = objA(Atrial);
       if (f2 < f - tol * std::abs(f)) {
         A = std::move(Atrial);
-        a_accepted += 1;
-        a_last_alpha = alpha;
         U = K * A;
         f = objective(A, V, Sigma);
         improved = true;
@@ -213,16 +196,6 @@ Rcpp::List ssdr_p_optimize_cpp(const arma::mat& X,
       }
     }
 
-    if (verbose) {
-      Rcout << "[A] accepted=" << a_accepted;
-      if (a_accepted > 0) {
-        Rcout << ", last_alpha=" << a_last_alpha;
-      }
-      Rcout << "\n";
-    }
-
-    int v_accepted = 0;
-    double v_last_alpha = 0.0;
     for (int step = 0; step < 10; ++step) {
       arma::mat E = B % arma::exp(U * Sigma * V.t());
       arma::mat gradV = (-X.t() * U * Sigma + E.t() * U * Sigma) * np_inv;
@@ -240,21 +213,11 @@ Rcpp::List ssdr_p_optimize_cpp(const arma::mat& X,
       double f2 = objV(Vtrial);
       if (f2 < f - tol * std::abs(f)) {
         V = std::move(Vtrial);
-        v_accepted += 1;
-        v_last_alpha = alphaV;
         f = objective(A, V, Sigma);
         improved = true;
       } else {
         break;
       }
-    }
-
-    if (verbose) {
-      Rcout << "[V] accepted=" << v_accepted;
-      if (v_accepted > 0) {
-        Rcout << ", last_alpha=" << v_last_alpha;
-      }
-      Rcout << "\n";
     }
 
     {
@@ -313,23 +276,8 @@ Rcpp::List ssdr_p_optimize_cpp(const arma::mat& X,
     }
 
     if (!improved) {
-      if (verbose) {
-        Rcout << "No improvement in cycle " << cycle + 1 << "\n";
-      }
       break;
     }
-
-    if (verbose) {
-      Rcout << "Cycle " << cycle + 1 << " complete, objective=" << f << "\n";
-    }
-  }
-
-  if (verbose) {
-    double elapsed =
-      std::chrono::duration<double>(
-        std::chrono::high_resolution_clock::now() - t0
-      ).count();
-    Rcout << "Finished in " << elapsed << "s\n";
   }
 
   U = K * A;

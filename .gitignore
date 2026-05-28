@@ -31,6 +31,8 @@ Rplots.pdf
 *.synctex.gz
 
 # Large scientific data and caches
+data-raw/
+inst/extdata/
 *.h5
 *.h5ad
 *.loom

@@ -1,22 +1,3 @@
-ssdr_arg_alias <- function(dots, target, alias, current, target_missing = is.null(current)) {
-  if (!alias %in% names(dots)) {
-    return(list(value = current, dots = dots))
-  }
-  if (!target_missing) {
-    stop("Use only one of `", target, "` and deprecated `", alias, "`.", call. = FALSE)
-  }
-  warning("`", alias, "` is deprecated; use `", target, "`.", call. = FALSE)
-  current <- dots[[alias]]
-  dots[[alias]] <- NULL
-  list(value = current, dots = dots)
-}
-
-ssdr_check_unused_dots <- function(dots) {
-  if (length(dots) > 0) {
-    stop("Unused argument(s): ", paste(names(dots), collapse = ", "), call. = FALSE)
-  }
-}
-
 ssdr_as_numeric_matrix <- function(x, name, nonnegative = FALSE) {
   x <- as.matrix(x)
   if (!is.numeric(x)) {

@@ -2,18 +2,18 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 ssdr_gaussian_kernel_cpp <- function(coordinates, bandwidth) {
-    .Call('_ssdr_ssdr_gaussian_kernel_cpp', PACKAGE = 'ssdr', coordinates, bandwidth)
+    .Call(`_ssdr_ssdr_gaussian_kernel_cpp`, coordinates, bandwidth)
 }
 
-ssdr_f_optimize_cpp <- function(X, Sigma_svd, V_svd, K, lambda, max_iter = 100L, tol = 1e-2, verbose = FALSE) {
-    .Call('_ssdr_ssdr_f_optimize_cpp', PACKAGE = 'ssdr', X, Sigma_svd, V_svd, K, lambda, max_iter, tol, verbose)
+ssdr_f_optimize_cpp <- function(X, Sigma_svd, V_svd, K, lambda, max_iter = 100L, tol = 1e-2) {
+    .Call(`_ssdr_ssdr_f_optimize_cpp`, X, Sigma_svd, V_svd, K, lambda, max_iter, tol)
 }
 
-ssdr_p_optimize_cpp <- function(X, B, Sigma_svd, V_svd, K, A_init, lambda, step_size_init, max_iter, tol = 1e-3, line_search_steps = 50L, verbose = FALSE) {
-    .Call('_ssdr_ssdr_p_optimize_cpp', PACKAGE = 'ssdr', X, B, Sigma_svd, V_svd, K, A_init, lambda, step_size_init, max_iter, tol, line_search_steps, verbose)
+ssdr_p_optimize_cpp <- function(X, B, Sigma_svd, V_svd, K, A_init, lambda, step_size_init, max_iter, tol = 1e-3, line_search_steps = 50L) {
+    .Call(`_ssdr_ssdr_p_optimize_cpp`, X, B, Sigma_svd, V_svd, K, A_init, lambda, step_size_init, max_iter, tol, line_search_steps)
 }
 
 ssdr_truncated_svd_cpp <- function(X, rank) {
-    .Call('_ssdr_ssdr_truncated_svd_cpp', PACKAGE = 'ssdr', X, rank)
+    .Call(`_ssdr_ssdr_truncated_svd_cpp`, X, rank)
 }
 

@@ -22,9 +22,6 @@
 #' @param tol Non-negative numeric. Minimum relative improvement for resetting
 #'   early stopping.
 #' @param seed Integer random seed passed to torch.
-#' @param verbose Logical. If `TRUE`, print progress messages during training.
-#' @param ... Deprecated argument aliases: `data_pixel`, `r`,
-#'   `sigma_neighbor`, `lambda_smooth`, `lr`, and `max_epoch`.
 #'
 #' @return An `ssdr_fit` object. The embedding is stored in `fit$U`.
 #' @export
@@ -37,7 +34,7 @@
 #' dim(fit$U)
 #' }
 ssdr_nn <- function(X,
-                    coords = NULL,
+                    coords,
                     rank = 5,
                     bandwidth = 0.2,
                     lambda = 1e-2,
@@ -47,36 +44,26 @@ ssdr_nn <- function(X,
                     max_iter = 500,
                     patience = 50,
                     tol = 1e-5,
-                    seed = 1,
-                    verbose = FALSE,
-                    ...) {
+                    seed = 1) {
   call <- match.call()
-  dots <- list(...)
 
-  alias <- ssdr_arg_alias(dots, "coords", "data_pixel", coords, missing(coords))
-  coords <- alias$value
-  dots <- alias$dots
-  alias <- ssdr_arg_alias(dots, "rank", "r", rank, missing(rank))
-  rank <- alias$value
-  dots <- alias$dots
-  alias <- ssdr_arg_alias(dots, "bandwidth", "sigma_neighbor", bandwidth, missing(bandwidth))
-  bandwidth <- alias$value
-  dots <- alias$dots
-  alias <- ssdr_arg_alias(dots, "lambda", "lambda_smooth", lambda, missing(lambda))
-  lambda <- alias$value
-  dots <- alias$dots
-  alias <- ssdr_arg_alias(dots, "learning_rate", "lr", learning_rate, missing(learning_rate))
-  learning_rate <- alias$value
-  dots <- alias$dots
-  alias <- ssdr_arg_alias(dots, "max_iter", "max_epoch", max_iter, missing(max_iter))
-  max_iter <- alias$value
-  dots <- alias$dots
-  ssdr_check_unused_dots(dots)
-
+  old_torch_verify <- Sys.getenv("TORCH_VERIFY_LOAD", unset = NA_character_)
+  Sys.setenv(TORCH_VERIFY_LOAD = "FALSE")
+  on.exit({
+    if (is.na(old_torch_verify)) {
+      Sys.unsetenv("TORCH_VERIFY_LOAD")
+    } else {
+      Sys.setenv(TORCH_VERIFY_LOAD = old_torch_verify)
+    }
+  }, add = TRUE)
   if (!requireNamespace("torch", quietly = TRUE)) {
     stop("Package `torch` is required for ssdr_nn().", call. = FALSE)
   }
-  if (!isTRUE(tryCatch(torch::torch_is_installed(), error = function(e) FALSE))) {
+  torch_ready <- isTRUE(tryCatch({
+    probe <- torch::torch_tensor(1, dtype = torch::torch_float())
+    is.finite(as.numeric(probe$item()))
+  }, error = function(e) FALSE))
+  if (!torch_ready) {
     stop(
       "The R package `torch` is installed, but its backend is not available. ",
       "Run `torch::install_torch()` and try again.",
@@ -85,7 +72,7 @@ ssdr_nn <- function(X,
   }
 
   X <- ssdr_as_numeric_matrix(X, "X", nonnegative = TRUE)
-  if (is.null(coords)) stop("`coords` is required.", call. = FALSE)
+  if (missing(coords) || is.null(coords)) stop("`coords` is required.", call. = FALSE)
   coords <- ssdr_normalize_coords(coords)
   if (nrow(X) != nrow(coords)) {
     stop("`nrow(X)` must equal `nrow(coords)`.", call. = FALSE)
@@ -101,7 +88,6 @@ ssdr_nn <- function(X,
   patience <- ssdr_check_integer_scalar(patience, "patience")
   tol <- ssdr_check_scalar(tol, "tol", lower = 0)
   seed <- as.integer(seed)
-  verbose <- isTRUE(verbose)
 
   n <- nrow(X)
   p <- ncol(X)
@@ -240,16 +226,6 @@ ssdr_nn <- function(X,
     nll_trace[epoch] <- as.numeric(out$nll$item())
     smooth_pen_trace[epoch] <- as.numeric(out$smooth_pen$item())
 
-    if (verbose && (epoch == 1 || epoch %% 50 == 0)) {
-      message(sprintf(
-        "Epoch %d | loss = %.6f | nll = %.6f | smooth = %.6f",
-        epoch,
-        current_loss,
-        as.numeric(out$nll$item()),
-        as.numeric(out$smooth_pen$item())
-      ))
-    }
-
     if (is.finite(current_loss) &&
         (!is.finite(best_loss) || current_loss < best_loss - tol * (1 + abs(best_loss)))) {
       best_loss <- current_loss
@@ -267,12 +243,6 @@ ssdr_nn <- function(X,
     }
 
     if (no_improve >= patience) {
-      if (verbose) {
-        message(sprintf(
-          "Early stopping at epoch %d. Best epoch = %d, best loss = %.6f",
-          epoch, best_epoch, best_loss
-        ))
-      }
       break
     }
   }

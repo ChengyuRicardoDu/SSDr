@@ -2,11 +2,6 @@ Package: ssdr
 Type: Package
 Title: Spatially Smoothed Dimension Reduction
 Version: 0.1.0
-Author: Chengyu Du [aut, cph],
-    Zirui Li [ctb],
-    Boyi Guo [ctb],
-    Ruoqing Zhu [cre, aut, cph]
-Maintainer: Ruoqing Zhu <teazrq@gmail.com>
 Authors@R: c(
               person("Chengyu", "Du",
                      email = "cd29@illinois.edu", 

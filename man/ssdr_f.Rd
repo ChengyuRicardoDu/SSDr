@@ -6,15 +6,13 @@
 \usage{
 ssdr_f(
   X,
-  coords = NULL,
-  rank = NULL,
-  bandwidth = NULL,
+  coords,
+  rank,
+  bandwidth,
   lambda = NULL,
   center = FALSE,
   max_iter = 100,
-  tol = 0.01,
-  verbose = FALSE,
-  ...
+  tol = 0.01
 )
 }
 \arguments{
@@ -39,11 +37,6 @@ before fitting.}
 \item{max_iter}{Positive integer. Maximum number of outer iterations.}
 
 \item{tol}{Non-negative numeric. Relative convergence tolerance.}
-
-\item{verbose}{Logical. If \code{TRUE}, print optimizer progress.}
-
-\item{...}{Deprecated argument aliases: \code{data_pixel}, \code{r}, \code{sigma}, and
-\code{double_center}.}
 }
 \value{
 An \code{ssdr_fit} object. The embedding is stored in \code{fit$U}.
