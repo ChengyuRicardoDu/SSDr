@@ -128,3 +128,8 @@ repository:
 ```r
 citation("ssdr")
 ```
+
+## Analysis Repository
+
+Manuscript analysis code and examples are maintained in a separate repository:
+[SSDr-analysis](https://github.com/ChengyuRicardoDu/SSDr-analysis).
