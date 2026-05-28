@@ -1,60 +1,130 @@
 # SSDr
 
-Spatially Smoothed Dimension Reduction (SSDr) provides R implementations of
-spatially regularized dimension-reduction methods for spatial transcriptomics.
+[GitHub repository for reviewers](https://github.com/ChengyuRicardoDu/SSDr)
+
+Spatially Smoothed Dimension Reduction (SSDr) is an R package for learning
+spatially smooth low-dimensional embeddings from spatial transcriptomics data.
+Supplementary analysis code and manuscript examples are maintained separately
+from this package repository.
+The package provides the two main methods used in the manuscript:
+
+- `ssdr_f()` for continuous or preprocessed expression features.
+- `ssdr_nn()` for raw UMI count matrices.
+
+`ssdr_p()` is also exported for the kernel Poisson formulation described in the
+Supplementary Methods.
 
 ## Installation
 
 ```r
+install.packages("remotes")
 remotes::install_github("ChengyuRicardoDu/SSDr")
 ```
 
-`ssdr_nn()` requires the optional R `torch` package.
+`ssdr_nn()` requires the optional R `torch` package and a working torch backend:
 
-## Methods
+```r
+install.packages("torch")
+torch::install_torch()
+```
 
-| Function | Manuscript name | Input | Objective |
-|---|---|---|---|
-| `ssdr_f()` | SSDr-F | normalized expression or PCA scores | Frobenius loss with RKHS smoothness |
-| `ssdr_p()` | SSDr-P | count matrix | kernel Poisson loss with RKHS smoothness |
-| `ssdr_nn()` | SSDr-NN | count matrix | neural Poisson loss with graph smoothness |
+## Input Format
 
-The main manuscript workflow uses `ssdr_f()` and `ssdr_nn()`; `ssdr_p()` is
-provided for the kernel Poisson formulation described in the Supplementary
-Methods.
+All SSDr functions use the same basic input layout:
 
-## Common Arguments
-
-The public API uses the same names across methods where possible:
-
-- `X`: spots or cells in rows and features in columns.
-- `coords`: spatial coordinates aligned with `nrow(X)`.
+- `X`: an `n x p` matrix with spots in rows and genes or features in columns.
+- `coords`: an `n x d` matrix or data frame of spatial coordinates matched to
+  the rows of `X`.
 - `rank`: target embedding dimension.
 - `bandwidth`: Gaussian spatial bandwidth after coordinate normalization.
 - `lambda`: smoothness penalty weight.
-- `max_iter`: maximum optimizer iterations or training epochs.
-- `tol`: convergence tolerance.
 
-All methods return an `ssdr_fit` object. The embedding is always available as
+Each function returns an `ssdr_fit` object. The learned embedding is stored in
 `fit$U`.
 
-## Minimal Example
+## SSDr-F
+
+`ssdr_f()` fits the kernel Frobenius formulation. It is intended for continuous
+or preprocessed inputs, such as log-normalized expression features or PCA
+scores.
 
 ```r
 library(ssdr)
 
 set.seed(1)
-X <- matrix(rnorm(120), nrow = 30)
-coords <- cbind(runif(30), runif(30))
+n <- 50
+p <- 20
 
-fit <- ssdr_f(X, coords, rank = 2, bandwidth = 0.2, max_iter = 3)
-fit
-embedding <- fit$U
+X <- matrix(rnorm(n * p), nrow = n)
+coords <- cbind(
+  x = runif(n),
+  y = runif(n)
+)
+
+fit_f <- ssdr_f(
+  X = X,
+  coords = coords,
+  rank = 2,
+  bandwidth = 0.2,
+  lambda = NULL,
+  max_iter = 50
+)
+
+embedding_f <- fit_f$U
+dim(embedding_f)
+fit_f$parameters
 ```
 
-For count data:
+When `lambda = NULL`, `ssdr_f()` uses the package default smoothness weight.
+Spatial coordinates are globally min-max normalized inside the function before
+the Gaussian kernel is constructed.
+
+## SSDr-NN
+
+`ssdr_nn()` fits the neural Poisson formulation. It should be used with a
+non-negative count matrix on the original count scale.
 
 ```r
-counts <- matrix(rpois(150, lambda = 3), nrow = 30)
-fit_p <- ssdr_p(counts, coords, rank = 2, bandwidth = 0.2, max_iter = 1)
+library(ssdr)
+
+set.seed(1)
+n <- 50
+p <- 20
+
+counts <- matrix(rpois(n * p, lambda = 3), nrow = n)
+coords <- cbind(
+  x = runif(n),
+  y = runif(n)
+)
+
+fit_nn <- ssdr_nn(
+  X = counts,
+  coords = coords,
+  rank = 2,
+  bandwidth = 0.2,
+  lambda = 0.01,
+  hidden_dim = 32,
+  hidden_layers = 2,
+  learning_rate = 0.005,
+  max_iter = 100,
+  patience = 20,
+  seed = 1
+)
+
+embedding_nn <- fit_nn$U
+dim(embedding_nn)
+fit_nn$diagnostics$loss_trace
+```
+
+For manuscript-scale analyses, `rank`, `bandwidth`, `lambda`, network size and
+learning rate should be selected according to the analysis design. The example
+above is intentionally small.
+
+## Citation
+
+If you use SSDr, please cite the accompanying manuscript and the software
+repository:
+
+```r
+citation("ssdr")
 ```
