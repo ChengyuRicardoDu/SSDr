@@ -1,15 +1,1 @@
 * text=auto eol=lf
-
-*.png binary
-*.jpg binary
-*.jpeg binary
-*.tif binary
-*.tiff binary
-*.pdf binary
-*.xlsx binary
-*.xls binary
-*.rds binary
-*.RDS binary
-*.h5 binary
-*.h5ad binary
-
