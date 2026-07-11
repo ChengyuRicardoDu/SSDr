@@ -119,9 +119,11 @@ Rcpp::List ssdr_f_optimize_cpp(const arma::mat& X,
   int iterations = 0;
 
   for (int iter = 0; iter < max_iter; ++iter) {
+    // (a) A-block: closed-form ridge solve for A, then U = K A
     A = update_a_block(sigma, X, V, K, lambda);
     U = K * A;
 
+    // (b) V-block: least-squares update of V given A and Sigma
     arma::mat M = Sigma.t() * A.t() * K * K * A * Sigma;
     arma::mat RHS = X.t() * K * A * Sigma;
 
@@ -132,6 +134,7 @@ Rcpp::List ssdr_f_optimize_cpp(const arma::mat& X,
     }
     V = Vt.t();
 
+    // (c) Normalize V columns, folding the norms into Sigma
     for (int k = 0; k < rank; ++k) {
       double norm_val = arma::norm(V.col(k), 2);
       if (norm_val > arma::datum::eps) {
@@ -142,6 +145,7 @@ Rcpp::List ssdr_f_optimize_cpp(const arma::mat& X,
 
     sigma = arma::diagvec(Sigma);
 
+    // (d) Penalized Frobenius objective and convergence check
     double objective = frobenius_loss(X, U, sigma, V) / np
       + lambda * n_inv * arma::trace(A.t() * K * A);
 

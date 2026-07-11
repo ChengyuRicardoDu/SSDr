@@ -4,8 +4,8 @@ Title: Spatially Smoothed Dimension Reduction
 Version: 0.1.0
 Authors@R: c(
               person("Chengyu", "Du",
-                     email = "cd29@illinois.edu", 
-                     role = c("aut", "cph")),
+                     email = "cd29@illinois.edu",
+                     role = c("aut", "cre", "cph")),
               person("Zirui", "Li",
                      email = "lzrmath@smail.nju.edu.cn", 
                      role = c("ctb")),
@@ -13,8 +13,8 @@ Authors@R: c(
                      email = "bguo6@jhu.edu", 
                      role = c("ctb")),
               person("Ruoqing", "Zhu",
-                     email = "teazrq@gmail.com", 
-                     role = c("cre", "aut", "cph"))
+                     email = "teazrq@gmail.com",
+                     role = c("aut", "cph"))
             )
 Description: Provides spatially smoothed dimension reduction methods for
     spatial transcriptomics, including kernel Frobenius, kernel Poisson,

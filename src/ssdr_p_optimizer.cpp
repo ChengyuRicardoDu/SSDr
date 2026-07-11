@@ -169,6 +169,7 @@ Rcpp::List ssdr_p_optimize_cpp(const arma::mat& X,
     bool improved = false;
     iterations = cycle + 1;
 
+    // (a) A-block: projected gradient steps on A with V and Sigma fixed
     for (int step = 0; step < 10; ++step) {
       arma::mat E = B % arma::exp(U * Sigma * V.t());
       arma::mat gradA =
@@ -196,6 +197,7 @@ Rcpp::List ssdr_p_optimize_cpp(const arma::mat& X,
       }
     }
 
+    // (b) V-block: projected gradient steps on V with A and Sigma fixed
     for (int step = 0; step < 10; ++step) {
       arma::mat E = B % arma::exp(U * Sigma * V.t());
       arma::mat gradV = (-X.t() * U * Sigma + E.t() * U * Sigma) * np_inv;
@@ -220,6 +222,7 @@ Rcpp::List ssdr_p_optimize_cpp(const arma::mat& X,
       }
     }
 
+    // (c) Offset block: Sinkhorn-style row/column rescaling of the baseline B
     {
       double f_before_offset = f;
       arma::mat low_rank = U * Sigma * V.t();
@@ -246,6 +249,7 @@ Rcpp::List ssdr_p_optimize_cpp(const arma::mat& X,
       }
     }
 
+    // (d) Normalize once per cycle: fold A,V column norms into Sigma (reparameterization)
     {
       arma::mat A_old = A;
       arma::mat V_old = V;
