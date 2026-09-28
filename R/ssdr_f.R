@@ -1,24 +1,17 @@
-#' Spatially Smoothed Dimension Reduction with Frobenius Loss (SSDr-F)
+#' SSDr-F
 #'
-#' Fits the kernel Frobenius formulation of SSDr. The embedding is written as
-#' `U = K A`, where `K` is a Gaussian kernel over spatial coordinates.
+#' Fit a spatial embedding using a Gaussian kernel and squared Frobenius loss.
 #'
-#' @param X Numeric matrix with spots or cells in rows and features in columns.
-#'   For the manuscript SSDr-F analysis this is typically a PCA-reduced,
-#'   log-normalized expression matrix.
-#' @param coords Numeric matrix or data frame of spatial coordinates aligned
-#'   with the rows of `X`.
-#' @param rank Positive integer. Target embedding dimension.
-#' @param bandwidth Positive numeric. Gaussian kernel bandwidth after
-#'   global min-max normalization of `coords`.
-#' @param lambda Non-negative numeric smoothness weight. If `NULL`, a
-#'   data-dependent default is used.
-#' @param center Logical. If `TRUE`, double-center both `X` and the kernel
-#'   before fitting.
-#' @param max_iter Positive integer. Maximum number of outer iterations.
-#' @param tol Non-negative numeric. Relative convergence tolerance.
+#' @param X Numeric matrix with spots in rows and features in columns.
+#' @param coords Numeric coordinate matrix or data frame, in the same row order as `X`.
+#' @param rank Positive integer embedding dimension.
+#' @param bandwidth Positive kernel bandwidth after global min-max scaling of `coords`.
+#' @param lambda Non-negative penalty weight; `NULL` uses the data-dependent default.
+#' @param center If `TRUE`, double-center `X` and the kernel.
+#' @param max_iter Positive integer iteration limit.
+#' @param tol Non-negative relative convergence tolerance.
 #'
-#' @return An `ssdr_fit` object. The embedding is stored in `fit$U`.
+#' @return An `ssdr_fit` object with the embedding in `U`.
 #' @export
 #'
 #' @examples
@@ -37,26 +30,45 @@ ssdr_f <- function(X,
                    tol = 1e-2) {
   call <- match.call()
 
-  X <- ssdr_as_numeric_matrix(X, "X")
-  if (missing(coords) || is.null(coords)) stop("`coords` is required.", call. = FALSE)
-  coords <- ssdr_normalize_coords_global(coords)
+  X <- as.matrix(X)
+  coords <- as.matrix(coords)
+  if (!is.numeric(X)) {
+    stop("`X` must be numeric.", call. = FALSE)
+  }
+  if (!is.numeric(coords)) {
+    stop("`coords` must be numeric.", call. = FALSE)
+  }
   if (nrow(X) != nrow(coords)) {
-    stop("`nrow(X)` must equal `nrow(coords)`.", call. = FALSE)
+    stop("`X` and `coords` must have the same number of rows.", call. = FALSE)
   }
-  if (missing(rank) || is.null(rank)) stop("`rank` is required.", call. = FALSE)
-  if (missing(bandwidth) || is.null(bandwidth)) stop("`bandwidth` is required.", call. = FALSE)
-  rank <- ssdr_check_rank(rank, X)
-  bandwidth <- ssdr_check_scalar(bandwidth, "bandwidth", lower = 0, strict = TRUE)
-  if (!is.null(lambda)) {
-    lambda <- ssdr_check_scalar(lambda, "lambda", lower = 0)
+
+  if (rank < 1 || rank > min(dim(X)) || rank != floor(rank)) {
+    stop("`rank` must be an integer between 1 and min(dim(X)).", call. = FALSE)
   }
-  max_iter <- ssdr_check_integer_scalar(max_iter, "max_iter")
-  tol <- ssdr_check_scalar(tol, "tol", lower = 0)
+  rank <- as.integer(rank)
+
+  if (bandwidth <= 0) {
+    stop("`bandwidth` must be positive.", call. = FALSE)
+  }
+  if (!is.null(lambda) && lambda < 0) {
+    stop("`lambda` must be non-negative.", call. = FALSE)
+  }
+  if (max_iter < 1 || max_iter != floor(max_iter)) {
+    stop("`max_iter` must be a positive integer.", call. = FALSE)
+  }
+  max_iter <- as.integer(max_iter)
+  if (tol < 0) {
+    stop("`tol` must be non-negative.", call. = FALSE)
+  }
   center <- isTRUE(center)
+
+  coord_min <- min(coords)
+  coord_max <- max(coords)
+  coords <- (coords - coord_min) / (coord_max - coord_min)
 
   n <- nrow(X)
   p <- ncol(X)
-  K <- ssdr_gaussian_kernel_cpp(coords, bandwidth)
+  K <- gaussian_kernel(coords, bandwidth)
 
   if (center) {
     H <- diag(n) - matrix(1 / n, n, n)
@@ -68,12 +80,9 @@ ssdr_f <- function(X,
     K_fit <- K
   }
 
-  svd_result <- ssdr_truncated_svd_cpp(X_fit, rank)
+  svd_result <- truncated_svd(X_fit, rank)
   svd_s <- svd_result$s
   svd_V <- svd_result$V
-  if (any(!is.finite(svd_s)) || any(svd_s <= sqrt(.Machine$double.eps))) {
-    stop("`rank` is too large for the effective rank of `X`; reduce `rank`.", call. = FALSE)
-  }
 
   if (is.null(lambda)) {
     ratio <- 0.1 / 0.9
@@ -90,22 +99,25 @@ ssdr_f <- function(X,
     tol = tol
   )
 
-  new_ssdr_fit(
-    method = "ssdr_f",
-    U = result$U,
-    V = result$V,
-    sigma = diag(result$Sigma),
-    objective = result$objective,
-    iterations = result$iterations,
-    parameters = list(
-      rank = rank,
-      bandwidth = bandwidth,
-      lambda = lambda,
-      center = center,
-      max_iter = max_iter,
-      tol = tol
+  structure(
+    list(
+      method = "ssdr_f",
+      U = result$U,
+      V = result$V,
+      sigma = diag(result$Sigma),
+      objective = result$objective,
+      iterations = result$iterations,
+      parameters = list(
+        rank = rank,
+        bandwidth = bandwidth,
+        lambda = lambda,
+        center = center,
+        max_iter = max_iter,
+        tol = tol
+      ),
+      diagnostics = list(reconstruction_loss = result$reconstruction_loss),
+      call = call
     ),
-    diagnostics = list(reconstruction_loss = result$reconstruction_loss),
-    call = call
+    class = "ssdr_fit"
   )
 }

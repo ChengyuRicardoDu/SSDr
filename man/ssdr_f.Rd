@@ -2,7 +2,7 @@
 % Please edit documentation in R/ssdr_f.R
 \name{ssdr_f}
 \alias{ssdr_f}
-\title{Spatially Smoothed Dimension Reduction with Frobenius Loss (SSDr-F)}
+\title{SSDr-F}
 \usage{
 ssdr_f(
   X,
@@ -16,34 +16,27 @@ ssdr_f(
 )
 }
 \arguments{
-\item{X}{Numeric matrix with spots or cells in rows and features in columns.
-For the manuscript SSDr-F analysis this is typically a PCA-reduced,
-log-normalized expression matrix.}
+\item{X}{Numeric matrix with spots in rows and features in columns.}
 
-\item{coords}{Numeric matrix or data frame of spatial coordinates aligned
-with the rows of \code{X}.}
+\item{coords}{Numeric coordinate matrix or data frame, in the same row order as \code{X}.}
 
-\item{rank}{Positive integer. Target embedding dimension.}
+\item{rank}{Positive integer embedding dimension.}
 
-\item{bandwidth}{Positive numeric. Gaussian kernel bandwidth after
-global min-max normalization of \code{coords}.}
+\item{bandwidth}{Positive kernel bandwidth after global min-max scaling of \code{coords}.}
 
-\item{lambda}{Non-negative numeric smoothness weight. If \code{NULL}, a
-data-dependent default is used.}
+\item{lambda}{Non-negative penalty weight; \code{NULL} uses the data-dependent default.}
 
-\item{center}{Logical. If \code{TRUE}, double-center both \code{X} and the kernel
-before fitting.}
+\item{center}{If \code{TRUE}, double-center \code{X} and the kernel.}
 
-\item{max_iter}{Positive integer. Maximum number of outer iterations.}
+\item{max_iter}{Positive integer iteration limit.}
 
-\item{tol}{Non-negative numeric. Relative convergence tolerance.}
+\item{tol}{Non-negative relative convergence tolerance.}
 }
 \value{
-An \code{ssdr_fit} object. The embedding is stored in \code{fit$U}.
+An \code{ssdr_fit} object with the embedding in \code{U}.
 }
 \description{
-Fits the kernel Frobenius formulation of SSDr. The embedding is written as
-\verb{U = K A}, where \code{K} is a Gaussian kernel over spatial coordinates.
+Fit a spatial embedding using a Gaussian kernel and squared Frobenius loss.
 }
 \examples{
 set.seed(1)

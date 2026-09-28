@@ -18,47 +18,23 @@ static arma::mat update_a_block(const arma::vec& sigma,
                                 const arma::mat& V,
                                 const arma::mat& K,
                                 double lambda) {
-  if (sigma.n_elem == 0) {
-    stop("`sigma` must have positive length.");
-  }
-  if (X.n_rows == 0 || X.n_cols == 0) {
-    stop("`X` must be a non-empty matrix.");
-  }
-  if (K.n_rows != X.n_rows || K.n_cols != X.n_rows) {
-    stop("`K` must be an n x n matrix where n = nrow(X).");
-  }
-  if (V.n_rows != X.n_cols || V.n_cols != sigma.n_elem) {
-    stop("`V` must be a p x rank matrix with rank = length(sigma).");
-  }
-  if (!X.is_finite() || !V.is_finite() || !K.is_finite() || !sigma.is_finite()) {
-    stop("Inputs to `update_a_block` contain non-finite values.");
-  }
-  if (!std::isfinite(lambda)) {
-    stop("`lambda` must be finite.");
-  }
-
   arma::mat residual = X;
   const double n = residual.n_rows;
   const double p = residual.n_cols;
-  const double sigma_eps = std::sqrt(arma::datum::eps);
   const int rank = sigma.n_elem;
   arma::mat A(K.n_rows, rank, arma::fill::zeros);
 
   for (int k = 0; k < rank; ++k) {
     double sigma_k = sigma[k];
-    if (!std::isfinite(sigma_k) || std::abs(sigma_k) <= sigma_eps) {
-      stop("`sigma` contains a near-zero or non-finite value; reduce `rank`.");
+    if (sigma_k == 0.0) {
+      stop("`sigma` must be nonzero.");
     }
 
     arma::vec v = V.col(k);
     arma::mat M = sigma_k * K + lambda * p * arma::eye<arma::mat>(n, n) / sigma_k;
     arma::colvec rhs = residual * v;
 
-    arma::colvec a_k;
-    bool ok = arma::solve(a_k, M, rhs, arma::solve_opts::fast);
-    if (!ok) {
-      stop("Linear solve failed in `update_a_block`.");
-    }
+    arma::colvec a_k = arma::solve(M, rhs, arma::solve_opts::fast);
 
     A.col(k) = a_k;
     residual -= (K * a_k) * (sigma_k * v.t());
@@ -75,31 +51,6 @@ Rcpp::List ssdr_f_optimize_cpp(const arma::mat& X,
                                double lambda,
                                int max_iter = 100,
                                double tol = 1e-2) {
-  if (X.n_rows == 0 || X.n_cols == 0) {
-    stop("`X` must be a non-empty matrix.");
-  }
-  if (Sigma_svd.n_elem == 0) {
-    stop("`Sigma_svd` must have positive length.");
-  }
-  if (V_svd.n_rows != X.n_cols || V_svd.n_cols != Sigma_svd.n_elem) {
-    stop("`V_svd` must be a p x rank matrix with rank = length(Sigma_svd).");
-  }
-  if (K.n_rows != X.n_rows || K.n_cols != X.n_rows) {
-    stop("`K` must be an n x n matrix where n = nrow(X).");
-  }
-  if (!X.is_finite() || !Sigma_svd.is_finite() || !V_svd.is_finite() || !K.is_finite()) {
-    stop("Inputs to `ssdr_f_optimize_cpp` contain non-finite values.");
-  }
-  if (!std::isfinite(lambda) || !std::isfinite(tol)) {
-    stop("`lambda` and `tol` must be finite.");
-  }
-  if (max_iter < 1) {
-    stop("`max_iter` must be >= 1.");
-  }
-  if (tol < 0) {
-    stop("`tol` must be non-negative.");
-  }
-
   const int n = X.n_rows;
   const int p = X.n_cols;
   const int rank = Sigma_svd.n_elem;
@@ -127,11 +78,7 @@ Rcpp::List ssdr_f_optimize_cpp(const arma::mat& X,
     arma::mat M = Sigma.t() * A.t() * K * K * A * Sigma;
     arma::mat RHS = X.t() * K * A * Sigma;
 
-    arma::mat Vt;
-    bool solved = arma::solve(Vt, M.t(), RHS.t(), arma::solve_opts::fast);
-    if (!solved) {
-      stop("Linear solve failed in V-block update.");
-    }
+    arma::mat Vt = arma::solve(M.t(), RHS.t(), arma::solve_opts::fast);
     V = Vt.t();
 
     // (c) Normalize V columns, folding the norms into Sigma

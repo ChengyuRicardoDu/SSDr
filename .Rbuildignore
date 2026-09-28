@@ -6,6 +6,5 @@
 ^[.]gitignore$
 ^CITATION[.]cff$
 ^LICENSE[.]md$
-^README[.]md$
 ^data-raw$
 ^inst/extdata$

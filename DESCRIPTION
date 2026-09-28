@@ -1,7 +1,7 @@
 Package: ssdr
 Type: Package
 Title: Spatially Smoothed Dimension Reduction
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: c(
               person("Chengyu", "Du",
                      email = "cd29@illinois.edu",
@@ -17,13 +17,11 @@ Authors@R: c(
                      role = c("aut", "cph"))
             )
 Description: Provides spatially smoothed dimension reduction methods for
-    spatial transcriptomics, including kernel Frobenius, kernel Poisson,
-    and neural Poisson formulations.
+    spatial transcriptomics.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Imports: 
-    Rcpp (>= 1.0.9)
-Suggests:
+    Rcpp (>= 1.0.9),
     torch
 LinkingTo: 
       Rcpp, 

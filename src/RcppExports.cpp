@@ -11,15 +11,16 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// ssdr_gaussian_kernel_cpp
-arma::mat ssdr_gaussian_kernel_cpp(const arma::mat& coordinates, double bandwidth);
-RcppExport SEXP _ssdr_ssdr_gaussian_kernel_cpp(SEXP coordinatesSEXP, SEXP bandwidthSEXP) {
+// gaussian_kernel
+arma::mat gaussian_kernel(const arma::mat& coordinates, double bandwidth, Rcpp::Nullable<Rcpp::NumericMatrix> landmarks);
+RcppExport SEXP _ssdr_gaussian_kernel(SEXP coordinatesSEXP, SEXP bandwidthSEXP, SEXP landmarksSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::mat& >::type coordinates(coordinatesSEXP);
     Rcpp::traits::input_parameter< double >::type bandwidth(bandwidthSEXP);
-    rcpp_result_gen = Rcpp::wrap(ssdr_gaussian_kernel_cpp(coordinates, bandwidth));
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericMatrix> >::type landmarks(landmarksSEXP);
+    rcpp_result_gen = Rcpp::wrap(gaussian_kernel(coordinates, bandwidth, landmarks));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -40,45 +41,23 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// ssdr_p_optimize_cpp
-Rcpp::List ssdr_p_optimize_cpp(const arma::mat& X, arma::mat B, const arma::vec& Sigma_svd, const arma::mat& V_svd, const arma::mat& K, const arma::mat& A_init, double lambda, double step_size_init, int max_iter, double tol, int line_search_steps);
-RcppExport SEXP _ssdr_ssdr_p_optimize_cpp(SEXP XSEXP, SEXP BSEXP, SEXP Sigma_svdSEXP, SEXP V_svdSEXP, SEXP KSEXP, SEXP A_initSEXP, SEXP lambdaSEXP, SEXP step_size_initSEXP, SEXP max_iterSEXP, SEXP tolSEXP, SEXP line_search_stepsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type B(BSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type Sigma_svd(Sigma_svdSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type V_svd(V_svdSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type K(KSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type A_init(A_initSEXP);
-    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< double >::type step_size_init(step_size_initSEXP);
-    Rcpp::traits::input_parameter< int >::type max_iter(max_iterSEXP);
-    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
-    Rcpp::traits::input_parameter< int >::type line_search_steps(line_search_stepsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ssdr_p_optimize_cpp(X, B, Sigma_svd, V_svd, K, A_init, lambda, step_size_init, max_iter, tol, line_search_steps));
-    return rcpp_result_gen;
-END_RCPP
-}
-// ssdr_truncated_svd_cpp
-Rcpp::List ssdr_truncated_svd_cpp(const arma::mat& X, int rank);
-RcppExport SEXP _ssdr_ssdr_truncated_svd_cpp(SEXP XSEXP, SEXP rankSEXP) {
+// truncated_svd
+Rcpp::List truncated_svd(const arma::mat& X, int rank);
+RcppExport SEXP _ssdr_truncated_svd(SEXP XSEXP, SEXP rankSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
     Rcpp::traits::input_parameter< int >::type rank(rankSEXP);
-    rcpp_result_gen = Rcpp::wrap(ssdr_truncated_svd_cpp(X, rank));
+    rcpp_result_gen = Rcpp::wrap(truncated_svd(X, rank));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_ssdr_ssdr_gaussian_kernel_cpp", (DL_FUNC) &_ssdr_ssdr_gaussian_kernel_cpp, 2},
+    {"_ssdr_gaussian_kernel", (DL_FUNC) &_ssdr_gaussian_kernel, 3},
     {"_ssdr_ssdr_f_optimize_cpp", (DL_FUNC) &_ssdr_ssdr_f_optimize_cpp, 7},
-    {"_ssdr_ssdr_p_optimize_cpp", (DL_FUNC) &_ssdr_ssdr_p_optimize_cpp, 11},
-    {"_ssdr_ssdr_truncated_svd_cpp", (DL_FUNC) &_ssdr_ssdr_truncated_svd_cpp, 2},
+    {"_ssdr_truncated_svd", (DL_FUNC) &_ssdr_truncated_svd, 2},
     {NULL, NULL, 0}
 };
 
